@@ -38,7 +38,6 @@ function getTokenSymbol(address) {
 
 async function sendTransaction(gasFee, retries = 5) {
     const { txHash, address, amount } = await sendDepositTransaction();
-    if (!txHash) return;
 
     const fromTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.POL);
     const toTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.WPOL);
@@ -60,11 +59,13 @@ async function sendTransaction(gasFee, retries = 5) {
     };
 
     try {
-        const response = await axios.post("https://api.tea-fi.com/transaction", payload);
-        log.info("✅ Transaction Report Sent To Backend:", response?.data);
+        if (txHash) {
+            const response = await axios.post("https://api.tea-fi.com/transaction", payload);
+            log.info("✅ Transaction Report Sent To Backend:", response?.data);
+        }
 
         await getPoints(address)
-        return response?.data;
+        return address;
     } catch (error) {
         log.error("❌ Failed To Send Transaction Report:", error.response?.data || error.message);
 
@@ -74,8 +75,8 @@ async function sendTransaction(gasFee, retries = 5) {
             return await sendTransaction(gasFee, retries - 1);
         } else {
             log.error("🚨 Max retries reached. Giving up.");
-            return null;
         }
+        return address;
     }
 }
 
@@ -89,8 +90,39 @@ async function getPoints(address) {
     }
 }
 
+async function checkInStatus(address) {
+    try {
+        const response = await axios.get(`https://api.tea-fi.com/wallet/check-in/current?address=${address}`);
+        log.info("📅 Last CheckIn:", response?.data?.lastCheckIn || `this is your first check in`);
+        return response?.data?.lastCheckIn
+    } catch (error) {
+        log.error("❌ Failed to Check latest checkIn:", error.response?.data || error.message);
+    }
+}
+
+async function checkIn(address) {
+    try {
+        const response = await axios.post(`https://api.tea-fi.com/wallet/check-in?address=${address}`, {});
+        log.info("✅ Check-In Succesfully:", response.data);
+    } catch (error) {
+        log.error("❌ Failed to Check-In:", error.response?.data || error.message);
+    }
+}
+
+async function checkInUser(address) {
+    const lastCheckIn = await checkInStatus(address);
+    const lastDate = new Date(lastCheckIn).getUTCDate();
+    const now = new Date().getUTCDate();
+    if (lastDate !== now) {
+        log.info(`🔃 Trying to checkin...`)
+        await checkIn(address);
+    } else {
+        log.info(`✅ Already checkin today...`)
+    }
+}
+
 (async () => {
-    console.log(banner)
+    log.info(banner)
     await new Promise(resolve => setTimeout(resolve, 5 * 1000));
     let counter = 0;
 
@@ -99,9 +131,11 @@ async function getPoints(address) {
         counter++;
         log.info(`=X= ================ZLKCYBER================ =X=`)
         log.info(`🔃 Processing Transaction ${counter} ( CTRL + C ) to exit..\n`)
-        const gasFee = await getGasQuote()
-        await sendTransaction(gasFee);
 
+        const gasFee = await getGasQuote()
+        const address = await sendTransaction(gasFee);
+
+        await checkInUser(address)
         log.info(`=X= ======================================== =X=`)
         await new Promise(resolve => setTimeout(resolve, 10 * 1000));
     }

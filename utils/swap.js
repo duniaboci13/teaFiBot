@@ -23,12 +23,11 @@ async function sendDepositTransaction() {
     }
 
     let spinner;
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
 
     try {
-        const provider = new ethers.JsonRpcProvider(RPC_URL);
-        const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
-
         const randomAmount = (Math.random() * (MAX - MIN) + MIN).toFixed(8);
         const amountToSend = ethers.parseEther(randomAmount.toString());
 
@@ -59,7 +58,7 @@ async function sendDepositTransaction() {
             log.error("❌ Error sending transaction:", error.message);
         }
 
-        return { txHash: null, address: null, amount: null };
+        return { txHash: null, address: wallet.address, amount: null };
     }
 }
 
