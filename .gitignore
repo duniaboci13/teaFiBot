@@ -1,0 +1,6 @@
+wallets.json
+node_modules
+package-lock.json
+setup.js
+tes.js
+.env
