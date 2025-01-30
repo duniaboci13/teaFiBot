@@ -93,7 +93,7 @@ async function getPoints(address) {
 async function checkInStatus(address) {
     try {
         const response = await axios.get(`https://api.tea-fi.com/wallet/check-in/current?address=${address}`);
-        log.info("📅 Last CheckIn:", response?.data?.lastCheckIn || `this is your first check in`);
+        log.info("📅 Last CheckIn:", response?.data?.lastCheckIn || `Never check in`);
         return response?.data?.lastCheckIn
     } catch (error) {
         log.error("❌ Failed to Check latest checkIn:", error.response?.data || error.message);
