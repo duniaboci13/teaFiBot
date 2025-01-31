@@ -36,8 +36,24 @@ function getTokenSymbol(address) {
     return Object.keys(TOKEN_ADDRESS).find(key => TOKEN_ADDRESS[key] === address) || "UNKNOWN";
 }
 
-async function sendTransaction(gasFee, retries = 5) {
-    const { txHash, address, amount } = await sendDepositTransaction();
+async function sendTransaction(
+    gasFee,
+    isRetry = false,
+    retries = 5,
+    txHash,
+    address,
+    amount) {
+    if (!isRetry) {
+        try {
+            ({ txHash, address, amount } = await sendDepositTransaction());
+            if (!txHash) throw new Error("Transaction hash is undefined.");
+        } catch (error) {
+            log.error("❌ Failed to initiate transaction:", error.message);
+            return null;
+        }
+    }
+
+    log.info(`🚀 Trying to send tx report to backend:`, txHash)
 
     const fromTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.POL);
     const toTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.WPOL);
@@ -59,23 +75,28 @@ async function sendTransaction(gasFee, retries = 5) {
     };
 
     try {
-        if (txHash) {
-            const response = await axios.post("https://api.tea-fi.com/transaction", payload);
-            log.info("✅ Transaction Report Sent To Backend:", response?.data);
-        }
+        const response = await axios.post("https://api.tea-fi.com/transaction", payload);
+        log.info("✅ Transaction Report Succesfully Sent:", response?.data);
 
-        await getPoints(address)
+        await getPoints(address);
         return address;
     } catch (error) {
         log.error("❌ Failed To Send Transaction Report:", error.response?.data || error.message);
 
         if (retries > 0) {
-            log.warn(`🔃 Retrying... (${retries} attempts left)`);
+            log.warn(`🔃 Retrying in 3s... (${retries - 1} attempts left)`);
             await new Promise(resolve => setTimeout(resolve, 3000));
-            return await sendTransaction(gasFee, retries - 1);
-        } else {
-            log.error("🚨 Max retries reached. Giving up.");
+            return sendTransaction(
+                gasFee,
+                true,
+                retries - 1,
+                txHash,
+                address,
+                amount
+            );
         }
+
+        log.error("🚨 Max retries reached. Giving up or ask them to upgrade server lol😆");
         return address;
     }
 }
@@ -110,6 +131,7 @@ async function checkIn(address) {
 }
 
 async function checkInUser(address) {
+    log.info(`📢 Trying to check latest checkin user...`)
     const lastCheckIn = await checkInStatus(address);
     const lastDate = new Date(lastCheckIn).getUTCDate();
     const now = new Date().getUTCDate();
