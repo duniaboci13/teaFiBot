@@ -5,8 +5,8 @@ import log from './utils/logger.js'
 import banner from './utils/banner.js'
 
 const TOKEN_ADDRESS = {
-    POL: "0x0000000000000000000000000000000000000000",
-    WPOL: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+    USDT: "0x0000000000000000000000000000000000000000",
+    TUSDT: "0x1E438D4414f38CD2bEB71B73721181CDe019f708",
     NETWORK_ID: 137,
     TYPE: 2 // Convert
 };
@@ -55,16 +55,16 @@ async function sendTransaction(
 
     log.info(`🚀 Trying to send tx report to backend:`, txHash)
 
-    const fromTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.POL);
-    const toTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.WPOL);
+    const fromTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.USDT);
+    const toTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.TUSDT);
 
     const payload = {
         hash: txHash,
         blockchainId: TOKEN_ADDRESS.NETWORK_ID,
         type: TOKEN_ADDRESS.TYPE,
         walletAddress: address,
-        fromTokenAddress: TOKEN_ADDRESS.POL,
-        toTokenAddress: TOKEN_ADDRESS.WPOL,
+        fromTokenAddress: TOKEN_ADDRESS.USDT,
+        toTokenAddress: TOKEN_ADDRESS.TUSDT,
         fromTokenSymbol,
         toTokenSymbol,
         fromAmount: amount,
