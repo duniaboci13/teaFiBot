@@ -5,7 +5,7 @@ import ora from 'ora'
 dotenv.config();
 
 // Constants
-const CONTRACT_ADDRESS = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
+const CONTRACT_ADDRESS = "0x1E438D4414f38CD2bEB71B73721181CDe019f708";
 const RPC_URL = "https://polygon-rpc.com";
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const MIN = 0.00001;
