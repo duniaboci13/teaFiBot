@@ -31,7 +31,7 @@ async function sendDepositTransaction() {
         const randomAmount = (Math.random() * (MAX - MIN) + MIN).toFixed(8);
         const amountToSend = ethers.parseEther(randomAmount.toString());
 
-        log.info(`🔹 Wrapping ${randomAmount} POL to WPOL...`);
+        log.info(`🔹 Wrapping ${randomAmount} USDT to tUSDT...`);
         const feeData = await provider.getFeeData();
 
         const gasPrice = feeData.gasPrice ? feeData.gasPrice * 125n / 100n : undefined; // increase gwei 25% for fast transaction
