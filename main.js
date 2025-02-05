@@ -6,7 +6,7 @@ import banner from './utils/banner.js'
 
 const TOKEN_ADDRESS = {
     USDT: "0x0000000000000000000000000000000000000000",
-    TUSDT: "0x1E438D4414f38CD2bEB71B73721181CDe019f708",
+    tUSDT: "0x1E438D4414f38CD2bEB71B73721181CDe019f708",
     NETWORK_ID: 137,
     TYPE: 2 // Convert
 };
@@ -56,7 +56,7 @@ async function sendTransaction(
     log.info(`🚀 Trying to send tx report to backend:`, txHash)
 
     const fromTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.USDT);
-    const toTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.TUSDT);
+    const toTokenSymbol = getTokenSymbol(TOKEN_ADDRESS.tUSDT);
 
     const payload = {
         hash: txHash,
@@ -64,7 +64,7 @@ async function sendTransaction(
         type: TOKEN_ADDRESS.TYPE,
         walletAddress: address,
         fromTokenAddress: TOKEN_ADDRESS.USDT,
-        toTokenAddress: TOKEN_ADDRESS.TUSDT,
+        toTokenAddress: TOKEN_ADDRESS.tUSDT,
         fromTokenSymbol,
         toTokenSymbol,
         fromAmount: amount,
